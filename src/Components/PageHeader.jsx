@@ -1,7 +1,7 @@
 import React from "react";
 import Button from "./Form/Button";
 
-const ProgramHeader = ({
+const PageHeader = ({
   searchPlaceholder = "Search programs by name...",
   searchValue = "",
   onSearchChange,
@@ -51,4 +51,4 @@ const ProgramHeader = ({
   );
 };
 
-export default ProgramHeader;
+export default PageHeader;

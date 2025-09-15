@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import ProgramHeader from "../../Components/ProgramHeader";
 import Card from "../../Components/Card";
 import Modal from "../../Modal";
 import ProgramUpsertForm from "./Components/ProgramUpsertForm";
@@ -7,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { deleteProgram, getAllPrograms } from "../../Thunks/Program";
 import Button from "../../Components/Form/Button";
 import NoData from "../../Components/NoData";
+import PageHeader from "../../Components/PageHeader";
 
 const Program = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -75,7 +75,7 @@ const Program = () => {
 
   return (
     <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
-      <ProgramHeader
+      <PageHeader
         searchValue={programFilter.search}
         onSearchChange={handleSearchChange}
         statusFilterValue={programFilter.status}
