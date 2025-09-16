@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllFocusAreas } from "../Thunks/FocusArea";
+import { getAllFocusAreas, upsertFocusArea } from "../Thunks/FocusArea";
 
 const focusAreaSlice = createSlice({
   name: "focusArea",
@@ -24,6 +24,14 @@ const focusAreaSlice = createSlice({
       .addCase(getAllFocusAreas.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+
+      .addCase(upsertFocusArea.rejected, (state, action) => {
+        console.log("upsertFocusArea.rejected", action);
+
+        state.error = {
+          alreadyExist: action.payload,
+        };
       });
   },
 });

@@ -57,9 +57,9 @@ const FocusArea = () => {
   }, []);
 
   const FocusAreas = (focusAreaState?.items ?? []).map((fa) => ({
-    id: fa.id ?? "dummyId",
-    title: fa.name ?? "Untitled Focus Area",
-    subtitle: fa.label ?? "No description available",
+    id: fa.id ?? "",
+    title: fa.name ?? "",
+    subtitle: fa.label ?? "",
     color: fa.color ?? "#ccc",
     icon: fa.icon ?? "fa-bullseye",
     metrics: {

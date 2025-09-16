@@ -26,6 +26,7 @@ const FocusAreaUpsertForm = ({
   const [showColorPicker, setShowColorPicker] = useState(false);
 
   const programs = useSelector((state) => state.program);
+  const focusAreas = useSelector((state) => state.focusArea);
 
   const handleChange = (fieldName, value) => {
     setFormData((prev) => ({ ...prev, [fieldName]: value }));
@@ -53,10 +54,22 @@ const FocusAreaUpsertForm = ({
 
     if (!validateForm()) return;
 
-    dispatch(upsertFocusArea(formData)).then(() => {
-      if (onSuccess) onSuccess();
+    dispatch(upsertFocusArea(formData)).then((action) => {
+      if (upsertFocusArea.fulfilled.match(action)) {
+        if (onSuccess) onSuccess();
+      }
     });
   };
+
+  useEffect(() => {
+    if (focusAreas.error?.alreadyExist) {
+      console.log("Duplicate error:", focusAreas.error.alreadyExist);
+      setErrors((prev) => ({
+        ...prev,
+        name: focusAreas?.error?.alreadyExist,
+      }));
+    }
+  }, [focusAreas.error]);
 
   useEffect(() => {
     setFormData({
@@ -151,7 +164,9 @@ const FocusAreaUpsertForm = ({
             id="program"
             label="Program"
             required
-            optionsObject={programs.items || []}
+            optionsObject={
+              programs.items.filter((p) => p.status == "ACTIVE") || []
+            }
             selected={formData.programId}
             onChange={(e) => handleChange("programId", e.target.value)}
             placeholder="Select a program"

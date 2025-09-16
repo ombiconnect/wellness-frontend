@@ -7,6 +7,7 @@ import { deleteProgram, getAllPrograms } from "../../Thunks/Program";
 import Button from "../../Components/Form/Button";
 import NoData from "../../Components/NoData";
 import PageHeader from "../../Components/PageHeader";
+import { getAllFocusAreas } from "../../Thunks/FocusArea";
 
 const Program = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -17,6 +18,7 @@ const Program = () => {
   const [deleteProgramData, setDeleteProgramData] = useState({});
 
   const programsState = useSelector((state) => state.program);
+  const focusAreaState = useSelector((state) => state.focusArea);
 
   const dispatch = useDispatch();
 
@@ -31,8 +33,10 @@ const Program = () => {
     setIsEditModalOpen(true);
   };
 
-  const setDeleteProgram = (program) => {
+  const setDeleteProgram = async (program) => {
+    await dispatch(getAllFocusAreas(program.id));
     setIsDeleteModalOpen(true);
+    focusAreaState;
     setDeleteProgramData({
       id: program.id,
       name: program.title,
@@ -69,7 +73,7 @@ const Program = () => {
     subtitle: program.description ?? "",
     status: program.status?.toLowerCase() ?? "draft",
     metrics: {
-      quadrants: program.quadrants ?? 0,
+      "Focus Areas": program?._count?.focusAreas ?? 0,
       habits: program.habits ?? 0,
       members: program.members ?? 0,
     },
@@ -131,10 +135,30 @@ const Program = () => {
       <Modal
         title={"Delete Program"}
         body={
-          <h1>
-            Are you sure you want to delete
-            <span className="text-red-700"> {deleteProgramData?.name}</span>?
-          </h1>
+          <div>
+            {focusAreaState?.items?.length > 0 ? (
+              <div className="mt-3 text-red-600">
+                <p>
+                  Thes program{" "}
+                  <span className="font-bold">"{deleteProgramData.name}"</span>{" "}
+                  already has focus areas created. Please delete all associated
+                  focus areas before deleting the program.
+                </p>
+                <h2 className="font-medium mt-3 mb-2">Focus Areas:</h2>
+                <ul className="list-disc list-inside space-y-1">
+                  {focusAreaState.items.map((fa) => (
+                    <li key={fa.id}>{fa.name}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <h1>
+                Are you sure you want to delete
+                <span className="text-red-700"> {deleteProgramData?.name}</span>
+                ?
+              </h1>
+            )}
+          </div>
         }
         footer={
           <div className="mt-4 border-gray-200 flex justify-end space-x-3">
@@ -151,6 +175,7 @@ const Program = () => {
               variant="danger"
               size="medium"
               onClick={handleDeleteProgram}
+              disabled={focusAreaState?.items?.length > 0}
             >
               Delete Program
             </Button>

@@ -4,10 +4,7 @@ import { getAxios } from "../Axios";
 // Upsert FocusArea (Quadrant)
 export const upsertFocusArea = createAsyncThunk(
   "focusArea/upsert",
-  async (
-    { id, name, label, color, icon, programId },
-    { rejectWithValue }
-  ) => {
+  async ({ id, name, label, color, icon, programId }, { rejectWithValue }) => {
     try {
       const payload = { name, label, color, icon };
       // Optional association if backend supports it
@@ -22,7 +19,9 @@ export const upsertFocusArea = createAsyncThunk(
       return response.data;
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.message || err.message || "Failed to upsert focus area"
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to upsert focus area"
       );
     }
   }
@@ -31,13 +30,19 @@ export const upsertFocusArea = createAsyncThunk(
 // List FocusAreas
 export const getAllFocusAreas = createAsyncThunk(
   "focusArea/getAll",
-  async (_, { rejectWithValue }) => {
+  async (programId, { rejectWithValue }) => {
     try {
-      const response = await getAxios().get(`/program/quadrant`);
+      const url = programId
+        ? `/program/quadrant?programId=${programId}`
+        : `/program/quadrant`;
+
+      const response = await getAxios().get(url);
       return response.data;
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.message || err.message || "Failed to fetch focus areas"
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to fetch focus areas"
       );
     }
   }
@@ -52,7 +57,9 @@ export const getFocusAreaById = createAsyncThunk(
       return response.data;
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.message || err.message || "Failed to fetch focus area"
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to fetch focus area"
       );
     }
   }
@@ -67,10 +74,10 @@ export const deleteFocusArea = createAsyncThunk(
       return id;
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.message || err.message || "Failed to delete focus area"
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to delete focus area"
       );
     }
   }
 );
-
-

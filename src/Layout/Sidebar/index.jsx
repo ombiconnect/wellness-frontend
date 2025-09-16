@@ -25,12 +25,12 @@ const Sidebar = () => {
         <h1 className="text-2xl font-bold text-gray-800">Wellness</h1>
       </div>
 
-      <nav className="space-y-2 flex-1">
+      <nav className="space-y-2 flex-1 ">
         {menuItems.map((item) => (
           <button
             key={item.name}
             onClick={() => handleNavigation(item.path)}
-            className={`w-full text-left flex items-center px-4 py-3  rounded-lg transition-colors ${
+            className={`cursor-pointer w-full text-left flex items-center px-4 py-3  rounded-lg transition-colors ${
               isActive(item.path)
                 ? "bg-blue-50 text-primary"
                 : "text-gray-700 hover:bg-blue-50"
