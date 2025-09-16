@@ -16,7 +16,7 @@ const Modal = ({ isOpen, onClose, title, body, footer }) => {
           <h2 className="text-xl font-bold">{title}</h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-800 text-xl font-bold"
+            className="text-gray-500 hover:text-gray-800 text-xl font-bold cursor-pointer"
           >
             ×
           </button>

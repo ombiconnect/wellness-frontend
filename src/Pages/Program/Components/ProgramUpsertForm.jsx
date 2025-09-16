@@ -23,8 +23,6 @@ const ProgramUpsertForm = ({ programData, handleCancelClick, onSuccess }) => {
   };
 
   const validateForm = () => {
-    console.log("Use Effect : ", formData);
-
     const newErrors = {};
 
     if (!formData.name.trim()) {

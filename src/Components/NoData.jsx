@@ -1,4 +1,5 @@
 const NoData = ({ name, icon, noMatch = false }) => {
+  let oldName = name;
   if (noMatch) {
     name = `No ${name} found with the specified filter`;
   } else {
@@ -11,7 +12,7 @@ const NoData = ({ name, icon, noMatch = false }) => {
         <h3 className="text-lg font-medium text-gray-500">{name}</h3>
         {noMatch == false && (
           <p className="text-gray-400 mt-1">
-            Create your first {name} to get started
+            Create your first {oldName} to get started
           </p>
         )}
       </div>

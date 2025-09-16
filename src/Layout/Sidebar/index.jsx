@@ -7,7 +7,8 @@ const Sidebar = () => {
   const menuItems = [
     { name: "Dashboard", icon: "fa-gauge-high", path: "/dashboard" },
     { name: "Members", icon: "fa-users", path: "/members" },
-    { name: "Program", icon: "fa-layer-group", path: "/program" },
+    { name: "Programs", icon: "fa-layer-group", path: "/program" },
+    { name: "Focus Areas", icon: "fa-bullseye", path: "/focus-area" },
   ];
 
   const isActive = (path) => {

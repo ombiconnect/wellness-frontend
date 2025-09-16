@@ -12,8 +12,8 @@ const PageHeader = ({
 }) => {
   return (
     <div className="mb-8">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-        <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+      <div className="flex flex-col md:flex-row md:items-center justify-end gap-4 mb-6">
+        {/* <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
           <div className="w-full md:w-64">
             <div className="relative">
               <i className="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
@@ -36,7 +36,7 @@ const PageHeader = ({
             <option value="active">Active</option>
             <option value="draft">Draft</option>
           </select>
-        </div>
+        </div> */}
 
         <Button
           onClick={onCreateButtonClick}

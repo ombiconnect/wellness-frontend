@@ -16,8 +16,8 @@ const Header = () => {
       title: "Members Management",
       description: "Manage your community members",
     },
-    "/content": {
-      title: "Content Management",
+    "/focus-area": {
+      title: "Focus Areas",
       description:
         "Manage habits, challenges, and content across all quadrants",
     },

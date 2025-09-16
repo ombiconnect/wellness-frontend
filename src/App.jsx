@@ -9,6 +9,7 @@ import { auth } from "./Firebase/Firebase";
 import { useDispatch, useSelector } from "react-redux";
 import { addAuth, removeAuth } from "./Slices/authSlice";
 import Program from "./Pages/Program";
+import FocusArea from "./Pages/FocusArea";
 
 function App() {
   const dispatch = useDispatch();
@@ -18,7 +19,6 @@ function App() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log("OnAuthStateChanged => ", user);
       if (user) {
         dispatch(addAuth({ Name: user.displayName, Email: user.email }));
       } else {
@@ -40,6 +40,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/content" element={<ContentManagement />} />
             <Route path="/program" element={<Program />} />
+            <Route path="/focus-area" element={<FocusArea />} />
           </Route>
         </Routes>
       ) : (

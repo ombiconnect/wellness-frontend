@@ -25,7 +25,6 @@ export const userLogout = createAsyncThunk(
   "auth/logout",
   async (_, { rejectWithValue }) => {
     try {
-      console.log("hi");
       await signOut(auth);
       return true;
     } catch (err) {

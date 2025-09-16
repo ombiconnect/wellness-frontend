@@ -31,13 +31,10 @@ const authSlice = createSlice({
     //LOGIN
     builder
       .addCase(userLogin.pending, (state) => {
-        console.log("Pending case");
         state.loading = true;
         state.error = null;
       })
       .addCase(userLogin.fulfilled, (state, action) => {
-        console.log("fulfilled case");
-        console.log("Fulfilled Payload => ", action.payload);
         state.loading = false;
         state.User = {
           Name: action.payload.name || "",
@@ -45,7 +42,6 @@ const authSlice = createSlice({
         };
       })
       .addCase(userLogin.rejected, (state, action) => {
-        console.log("rejected case");
         state.loading = false;
         state.error = action.payload;
       })
@@ -55,7 +51,6 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(userLogout.fulfilled, (state) => {
-        console.log("Signed out success");
         state.loading = false;
         state.User = null;
       })
