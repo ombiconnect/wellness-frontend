@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addAuth, removeAuth } from "./Slices/authSlice";
 import Program from "./Pages/Program";
 import FocusArea from "./Pages/FocusArea";
+import Habit from "./Pages/Habit";
 
 function App() {
   const dispatch = useDispatch();
@@ -41,6 +42,7 @@ function App() {
             <Route path="/content" element={<ContentManagement />} />
             <Route path="/program" element={<Program />} />
             <Route path="/focus-area" element={<FocusArea />} />
+            <Route path="/habit" element={<Habit />} />
           </Route>
         </Routes>
       ) : (

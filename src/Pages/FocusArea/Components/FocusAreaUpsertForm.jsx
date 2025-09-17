@@ -105,7 +105,6 @@ const FocusAreaUpsertForm = ({
 
   useEffect(() => {
     if (focusAreas.error?.alreadyExist) {
-      console.log("Duplicate error:", focusAreas.error.alreadyExist);
       setErrors((prev) => ({
         ...prev,
         name: focusAreas?.error?.alreadyExist,

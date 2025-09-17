@@ -27,7 +27,7 @@ const DropDown = ({
         id={id}
         value={selected}
         onChange={onChange}
-        className={`block w-full px-3 py-2 border ${
+        className={`block w-full px-3 py-2 border cursor-pointer ${
           error ? "border-red-500" : "border-gray-300"
         } rounded-md focus:outline-none ${
           error

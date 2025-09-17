@@ -9,6 +9,7 @@ const Sidebar = () => {
     { name: "Members", icon: "fa-users", path: "/members" },
     { name: "Programs", icon: "fa-layer-group", path: "/program" },
     { name: "Focus Areas", icon: "fa-bullseye", path: "/focus-area" },
+    { name: "Habits", icon: "fa-repeat", path: "/habit" },
   ];
 
   const isActive = (path) => {

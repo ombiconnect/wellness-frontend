@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 
-const Modal = ({ isOpen, onClose, title, body, footer }) => {
+const Modal = ({ isOpen, onClose, title, body, footer, size = "max-w-lg" }) => {
   if (!isOpen) return null;
 
   return (
@@ -9,7 +9,7 @@ const Modal = ({ isOpen, onClose, title, body, footer }) => {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
-        className="bg-white rounded-2xl shadow-lg w-full max-w-lg max-h-[80vh] flex flex-col"
+        className={`bg-white rounded-2xl shadow-lg w-full ${size} max-h-[80vh] flex flex-col`}
       >
         {/* Header */}
         <div className="flex justify-between items-center border-b border-gray-200 px-6 py-3">
