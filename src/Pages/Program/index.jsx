@@ -79,7 +79,7 @@ const Program = () => {
     },
     color: "#2563eb",
     icon: "fa-layer-group",
-    created: program.created ?? new Date().toISOString(),
+    created: program.createdAt ?? new Date().toISOString(),
   }));
 
   return (

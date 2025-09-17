@@ -67,7 +67,7 @@ const FocusArea = () => {
       habits: fa.habits ?? 0,
       members: fa.members ?? 0,
     },
-    created: fa.created ?? new Date().toISOString(),
+    created: fa.createdAt ?? new Date().toISOString(),
     originalData: fa,
   }));
 

@@ -22,8 +22,50 @@ const FocusAreaUpsertForm = ({
     icon: "",
     programId: "",
   });
+
+  const fontAwesomeIcons = [
+    "fa-bullseye",
+    "fa-dumbbell",
+    "fa-heart",
+    "fa-star",
+    "fa-trophy",
+    "fa-fire",
+    "fa-bolt",
+    "fa-leaf",
+    "fa-mountain",
+    "fa-bicycle",
+    "fa-running",
+    "fa-swimming-pool",
+    "fa-volleyball-ball",
+    "fa-basketball-ball",
+    "fa-football-ball",
+    "fa-table-tennis",
+    "fa-golf-ball",
+    "fa-hockey-puck",
+    "fa-skiing",
+    "fa-snowboarding",
+    "fa-hiking",
+    "fa-weight-hanging",
+    "fa-apple-alt",
+    "fa-carrot",
+    "fa-pizza-slice",
+    "fa-coffee",
+    "fa-graduation-cap",
+    "fa-book",
+    "fa-laptop",
+    "fa-mobile-alt",
+    "fa-camera",
+    "fa-music",
+    "fa-guitar",
+    "fa-palette",
+    "fa-briefcase",
+    "fa-home",
+    "fa-car",
+    "fa-plane",
+  ];
   const [errors, setErrors] = useState({});
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showIconPicker, setShowIconPicker] = useState(false);
 
   const programs = useSelector((state) => state.program);
   const focusAreas = useSelector((state) => state.focusArea);
@@ -148,15 +190,62 @@ const FocusAreaUpsertForm = ({
           )}
         </div>
 
-        <InputField
-          className="mt-4"
-          label="Icon"
-          placeholder="e.g. fa-dumbbell"
-          value={formData.icon}
-          onChange={(e) => handleChange("icon", e.target.value)}
-          error={errors.icon}
-          required
-        />
+        {/* Icon Picker Field */}
+        <div className="mt-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2">
+            Icon <span className="text-red-500">*</span>
+          </label>
+          <div className="flex items-center">
+            <div
+              className="w-10 h-10 rounded-md cursor-pointer border border-gray-300 mr-3 flex items-center justify-center bg-gray-50"
+              onClick={() => setShowIconPicker(!showIconPicker)}
+            >
+              <i
+                className={`fas ${formData.icon} text-lg`}
+                style={{ color: formData.color }}
+              ></i>
+            </div>
+            <InputField
+              placeholder="e.g. fa-dumbbell"
+              value={formData.icon}
+              onChange={(e) => handleChange("icon", e.target.value)}
+              error={errors.icon}
+              required
+              className="flex-1"
+            />
+          </div>
+          {showIconPicker && (
+            <div className="mt-2 p-4 border border-gray-300 rounded-lg bg-white">
+              <div className="grid grid-cols-8 gap-2 max-h-48 overflow-y-auto">
+                {fontAwesomeIcons.map((icon) => (
+                  <div
+                    key={icon}
+                    className={`w-10 h-10 rounded-md cursor-pointer border border-gray-300 flex items-center justify-center hover:bg-gray-100 ${
+                      formData.icon === icon
+                        ? "bg-blue-100 border-blue-500"
+                        : "bg-gray-50"
+                    }`}
+                    onClick={() => handleChange("icon", icon)}
+                  >
+                    <i
+                      className={`fas ${icon}`}
+                      style={{ color: formData.color }}
+                    ></i>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-2 flex justify-center">
+                <button
+                  type="button"
+                  className="text-sm text-gray-600 hover:text-gray-800 cursor-pointer"
+                  onClick={() => setShowIconPicker(false)}
+                >
+                  Close Picker
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Dropdown for Programs */}
         <div className="mt-4">
