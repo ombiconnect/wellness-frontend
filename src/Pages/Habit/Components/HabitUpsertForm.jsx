@@ -34,8 +34,8 @@ const HabitUpsertForm = ({ habitData, handleCancelClick, onSuccess }) => {
 
   const difficultyLevels = [
     { id: "BEGINNER", name: "Beginner" },
-    { id: "INTERMEDIATE", name: "Intermediate" },
     { id: "ADVANCED", name: "Advanced" },
+    { id: "PRO", name: "PRO" },
   ];
 
   const handleChange = (fieldName, value) => {
@@ -212,6 +212,7 @@ const HabitUpsertForm = ({ habitData, handleCancelClick, onSuccess }) => {
           onChange={(e) => handleChange("recordPoint", e.target.value)}
           error={errors.recordPoint}
           min="0"
+          required={true}
         />
 
         {/* Activity Section - Optional */}
@@ -437,7 +438,7 @@ const HabitUpsertForm = ({ habitData, handleCancelClick, onSuccess }) => {
             size="medium"
             onClick={handleUpsert}
           >
-            {formData.id ? "Update Habit" : "Create Habit"}
+            {"Save Habit"}
           </Button>
         </div>
       </form>

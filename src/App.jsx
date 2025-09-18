@@ -11,6 +11,7 @@ import { addAuth, removeAuth } from "./Slices/authSlice";
 import Program from "./Pages/Program";
 import FocusArea from "./Pages/FocusArea";
 import Habit from "./Pages/Habit";
+import Challenge from "./Pages/Challenge";
 
 function App() {
   const dispatch = useDispatch();
@@ -43,6 +44,7 @@ function App() {
             <Route path="/program" element={<Program />} />
             <Route path="/focus-area" element={<FocusArea />} />
             <Route path="/habit" element={<Habit />} />
+            <Route path="/challenge" element={<Challenge />} />
           </Route>
         </Routes>
       ) : (

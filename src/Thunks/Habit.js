@@ -84,7 +84,6 @@ export const deleteHabit = createAsyncThunk(
   "habit/delete",
   async (id, { rejectWithValue }) => {
     try {
-      console.log("Called delete");
       await getAxios().delete(`/habits/${id}`);
       return id;
     } catch (err) {

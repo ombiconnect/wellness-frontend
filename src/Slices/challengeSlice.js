@@ -1,8 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllFocusAreas, upsertFocusArea } from "../Thunks/FocusArea";
+import { getAllChallenges, upsertChallenge } from "../Thunks/Challenge";
 
-const focusAreaSlice = createSlice({
-  name: "focusArea",
+const challengeSlice = createSlice({
+  name: "challenge",
   initialState: {
     items: [],
     current: null,
@@ -13,20 +13,20 @@ const focusAreaSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // List
-      .addCase(getAllFocusAreas.pending, (state) => {
+      .addCase(getAllChallenges.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(getAllFocusAreas.fulfilled, (state, action) => {
+      .addCase(getAllChallenges.fulfilled, (state, action) => {
         state.loading = false;
         state.items = action.payload || [];
       })
-      .addCase(getAllFocusAreas.rejected, (state, action) => {
+      .addCase(getAllChallenges.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
-      .addCase(upsertFocusArea.rejected, (state, action) => {
+      .addCase(upsertChallenge.rejected, (state, action) => {
         state.error = {
           alreadyExist: action.payload,
         };
@@ -34,4 +34,4 @@ const focusAreaSlice = createSlice({
   },
 });
 
-export default focusAreaSlice.reducer;
+export default challengeSlice.reducer;

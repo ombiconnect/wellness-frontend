@@ -25,17 +25,9 @@ const Header = () => {
       title: "Programs",
       description: "Create and manage community challenges",
     },
-    "/courses": {
-      title: "Mini-Courses",
-      description: "Manage educational content and courses",
-    },
-    "/analytics": {
-      title: "Analytics",
-      description: "View performance metrics and insights",
-    },
-    "/settings": {
-      title: "Settings",
-      description: "Configure your account preferences",
+    "/challenge": {
+      title: "Challenges",
+      description: "Create and manage challenges",
     },
   };
 
