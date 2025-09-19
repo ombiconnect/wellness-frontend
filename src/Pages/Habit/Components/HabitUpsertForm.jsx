@@ -274,7 +274,7 @@ const HabitUpsertForm = ({ habitData, handleCancelClick, onSuccess }) => {
                     {formData.activity.children.length > 1 && (
                       <button
                         type="button"
-                        className="ml-2 text-red-500 hover:text-red-700"
+                        className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
                         onClick={() =>
                           removeChildItem("activity", "children", index)
                         }
@@ -286,7 +286,7 @@ const HabitUpsertForm = ({ habitData, handleCancelClick, onSuccess }) => {
                 ))}
                 <button
                   type="button"
-                  className="mt-1 text-sm text-blue-600 hover:text-blue-800"
+                  className="mt-1 text-sm text-blue-600 hover:text-blue-800 cursor-pointer"
                   onClick={() => addChildItem("activity", "children")}
                 >
                   + Add Step
@@ -355,7 +355,7 @@ const HabitUpsertForm = ({ habitData, handleCancelClick, onSuccess }) => {
                     {formData.tips.children.length > 1 && (
                       <button
                         type="button"
-                        className="ml-2 text-red-500 hover:text-red-700"
+                        className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
                         onClick={() =>
                           removeChildItem("tips", "children", index)
                         }
@@ -367,7 +367,7 @@ const HabitUpsertForm = ({ habitData, handleCancelClick, onSuccess }) => {
                 ))}
                 <button
                   type="button"
-                  className="mt-1 text-sm text-blue-600 hover:text-blue-800"
+                  className="mt-1 text-sm text-blue-600 hover:text-blue-800 cursor-pointer"
                   onClick={() => addChildItem("tips", "children")}
                 >
                   + Add Tip

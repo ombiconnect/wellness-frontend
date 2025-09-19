@@ -10,7 +10,6 @@ const UniversalCard = ({
   // Default values
   const defaultIcon = "fa-layer-group";
   const hasColor = item.color && item.color !== "";
-
   return (
     <div
       className={`bg-white rounded-lg shadow-sm border border-gray-200 p-5 transition-all duration-300 hover:shadow-md ${className}`}
@@ -19,12 +18,7 @@ const UniversalCard = ({
       }}
     >
       <div className="flex items-start justify-between mb-4">
-        <div
-          className="w-12 h-12 rounded-lg flex items-center justify-center"
-          style={{
-            backgroundColor: hasColor ? `${item.color}20` : "#dbeafe", // blue-50 default
-          }}
-        >
+        <div className="w-12 h-12 rounded-lg flex items-center justify-center">
           <i
             className={`fa-solid ${item.icon || defaultIcon}`}
             style={{

@@ -16,6 +16,10 @@ const Header = () => {
       title: "Habits Management",
       description: "Manage your Habits",
     },
+    "/member": {
+      title: "Member Management",
+      description: "Manage your Members",
+    },
     "/focus-area": {
       title: "Focus Areas",
       description:

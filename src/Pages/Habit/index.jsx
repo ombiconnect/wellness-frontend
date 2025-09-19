@@ -60,8 +60,8 @@ const Habit = () => {
     id: habit.id ?? "",
     title: habit.title ?? "",
     subtitle: `Difficulty: ${habit.difficultyLevel}`,
-    color: "#10b981",
-    icon: "fa-repeat",
+    color: habit.focusArea?.color ?? "#10b981",
+    icon: habit.focusArea?.icon ?? "fa-repeat",
     metrics: {
       participants: habit.participants ?? 0,
     },
