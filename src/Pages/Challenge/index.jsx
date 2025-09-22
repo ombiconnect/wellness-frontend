@@ -7,6 +7,7 @@ import Button from "../../Components/Form/Button";
 import NoData from "../../Components/NoData";
 import PageHeader from "../../Components/PageHeader";
 import UniversalCard from "../../Components/UniversalCard";
+import Loader from "../../Components/Loader";
 
 const Challenge = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -56,7 +57,9 @@ const Challenge = () => {
     fetchChallenges();
   }, []);
 
-  const Challenges = (challengeState?.items ?? []).map((challenge) => ({
+  const Challenges = (
+    Array.isArray(challengeState?.items) ? challengeState.items : []
+  ).map((challenge) => ({
     id: challenge.id ?? "",
     title: challenge.title ?? "",
     subtitle: challenge.subtitle ?? "",
@@ -93,7 +96,9 @@ const Challenge = () => {
           ))}
         </div>
       )}
-
+      {challengeState.loading && (
+        <Loader size="large" color="blue" showText={false} />
+      )}
       <Modal
         size={"max-w-2xl"}
         title={"Create Challenge Details"}
