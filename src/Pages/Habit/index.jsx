@@ -7,6 +7,7 @@ import Button from "../../Components/Form/Button";
 import NoData from "../../Components/NoData";
 import PageHeader from "../../Components/PageHeader";
 import UniversalCard from "../../Components/UniversalCard";
+import Loader from "../../Components/Loader";
 
 const Habit = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -56,18 +57,20 @@ const Habit = () => {
     fetchHabits();
   }, []);
 
-  const Habits = (habitState?.items ?? []).map((habit) => ({
-    id: habit.id ?? "",
-    title: habit.title ?? "",
-    subtitle: `Difficulty: ${habit.difficultyLevel}`,
-    color: habit.focusArea?.color ?? "#10b981",
-    icon: habit.focusArea?.icon ?? "fa-repeat",
-    metrics: {
-      participants: habit.participants ?? 0,
-    },
-    created: habit.createdAt ?? new Date().toISOString(),
-    originalData: habit,
-  }));
+  const Habits = (Array.isArray(habitState?.items) ? habitState.items : []).map(
+    (habit) => ({
+      id: habit.id ?? "",
+      title: habit.title ?? "",
+      subtitle: `Difficulty: ${habit.difficultyLevel}`,
+      color: habit.focusArea?.color ?? "#10b981",
+      icon: habit.focusArea?.icon ?? "fa-repeat",
+      metrics: {
+        participants: habit.participants ?? 0,
+      },
+      created: habit.createdAt ?? new Date().toISOString(),
+      originalData: habit,
+    })
+  );
 
   return (
     <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
@@ -90,7 +93,9 @@ const Habit = () => {
           ))}
         </div>
       )}
-
+      {habitState.loading && (
+        <Loader size="large" color="blue" showText={false} />
+      )}
       <Modal
         size={"max-w-xl"}
         title={"Create Habit Details"}

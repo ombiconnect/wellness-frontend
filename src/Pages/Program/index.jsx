@@ -8,6 +8,7 @@ import Button from "../../Components/Form/Button";
 import NoData from "../../Components/NoData";
 import PageHeader from "../../Components/PageHeader";
 import { getAllFocusAreas } from "../../Thunks/FocusArea";
+import Loader from "../../Components/Loader";
 
 const Program = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -67,7 +68,9 @@ const Program = () => {
     fetchPrograms();
   }, []);
 
-  const Programs = (programsState?.items ?? []).map((program) => ({
+  const Programs = (
+    Array.isArray(programsState?.items) ? programsState.items : []
+  ).map((program) => ({
     id: program.id ?? "",
     title: program.name ?? "",
     subtitle: program.description ?? "",
@@ -100,7 +103,9 @@ const Program = () => {
           ))}
         </div>
       )}
-
+      {programsState.loading && (
+        <Loader size="large" color="blue" showText={false} />
+      )}
       <Modal
         title={"Create Program Details"}
         body={

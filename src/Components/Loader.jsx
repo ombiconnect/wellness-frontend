@@ -15,7 +15,7 @@ const Loader = ({ size = "medium", color = "blue", className = "" }) => {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-[60]">
       <div
         className={`${sizeClasses[size]} border-2 border-gray-200 rounded-full animate-spin ${colorClasses[color]} ${className}`}
       />

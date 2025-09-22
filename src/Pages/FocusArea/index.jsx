@@ -7,6 +7,7 @@ import Button from "../../Components/Form/Button";
 import NoData from "../../Components/NoData";
 import PageHeader from "../../Components/PageHeader";
 import UniversalCard from "../../Components/UniversalCard";
+import Loader from "../../Components/Loader";
 
 const FocusArea = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -56,7 +57,9 @@ const FocusArea = () => {
     fetchFocusAreas();
   }, []);
 
-  const FocusAreas = (focusAreaState?.items ?? []).map((fa) => ({
+  const FocusAreas = (
+    Array.isArray(focusAreaState?.items) ? focusAreaState.items : []
+  ).map((fa) => ({
     id: fa.id ?? "",
     title: fa.name ?? "",
     subtitle: fa.label ?? "",
@@ -92,7 +95,9 @@ const FocusArea = () => {
           ))}
         </div>
       )}
-
+      {focusAreaState.loading && (
+        <Loader size="large" color="blue" showText={false} />
+      )}
       <Modal
         title={"Create Focus Area Details"}
         body={
