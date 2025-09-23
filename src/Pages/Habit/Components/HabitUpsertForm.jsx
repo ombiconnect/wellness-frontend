@@ -28,8 +28,6 @@ const HabitUpsertForm = ({ habitData, handleCancelClick, onSuccess }) => {
   });
 
   const [errors, setErrors] = useState({});
-  const [showActivitySection, setShowActivitySection] = useState(false);
-  const [showTipsSection, setShowTipsSection] = useState(false);
   const focusAreas = useSelector((state) => state.focusArea);
 
   const difficultyLevels = [
@@ -58,7 +56,9 @@ const HabitUpsertForm = ({ habitData, handleCancelClick, onSuccess }) => {
         // Handle simple fields
         updatedParent[fieldName] = value;
       }
-
+      if (errors["activity"]) {
+        setErrors((prev) => ({ ...prev, ["activity"]: "" }));
+      }
       return { ...prev, [parentField]: updatedParent };
     });
   };
@@ -87,13 +87,20 @@ const HabitUpsertForm = ({ habitData, handleCancelClick, onSuccess }) => {
     if (!formData.title.trim()) {
       newErrors.title = "Habit title is required";
     }
-
+    if (!formData.focusAreaId) {
+      newErrors.focusAreaId = "Focus area is required";
+    }
+    if (!formData.activity.text.trim()) {
+      newErrors.activity = "Activity is required";
+    }
     if (!formData.activeFrom) {
       newErrors.activeFrom = "Start date is required";
     }
-
-    if (!formData.focusAreaId) {
-      newErrors.focusAreaId = "Focus area is required";
+    if (formData.activeTo < formData.activeFrom) {
+      newErrors.activeTo = "End date should be later than the start date.";
+    }
+    if (!formData.activeTo) {
+      newErrors.activeTo = "End date is required";
     }
 
     if (formData.recordPoint <= 0) {
@@ -120,22 +127,16 @@ const HabitUpsertForm = ({ habitData, handleCancelClick, onSuccess }) => {
     // Filter out empty children items and format dates
     const payload = {
       ...formData,
-      activity: showActivitySection
-        ? {
-            ...formData.activity,
-            children: formData.activity.children.filter(
-              (item) => item.trim() !== ""
-            ),
-          }
-        : null,
-      tips: showTipsSection
-        ? {
-            ...formData.tips,
-            children: formData.tips.children.filter(
-              (item) => item.trim() !== ""
-            ),
-          }
-        : null,
+      activity: {
+        ...formData.activity,
+        children: formData.activity.children.filter(
+          (item) => item.trim() !== ""
+        ),
+      },
+      tips: {
+        ...formData.tips,
+        children: formData.tips.children.filter((item) => item.trim() !== ""),
+      },
       // Convert dates to ISO format
       activeFrom: new Date(formData.activeFrom).toISOString(),
       activeTo: formData.activeTo
@@ -153,17 +154,6 @@ const HabitUpsertForm = ({ habitData, handleCancelClick, onSuccess }) => {
 
   useEffect(() => {
     if (habitData) {
-      const hasActivity =
-        habitData.activity &&
-        (habitData.activity.text ||
-          (habitData.activity.children &&
-            habitData.activity.children.length > 0));
-
-      const hasTips =
-        habitData.tips &&
-        (habitData.tips.text ||
-          (habitData.tips.children && habitData.tips.children.length > 0));
-
       setFormData({
         id: habitData.id || "",
         title: habitData.title || "",
@@ -179,9 +169,6 @@ const HabitUpsertForm = ({ habitData, handleCancelClick, onSuccess }) => {
           : "",
         focusAreaId: habitData.focusAreaId || "",
       });
-
-      setShowActivitySection(hasActivity);
-      setShowTipsSection(hasTips);
     }
     setErrors({});
   }, [habitData]);
@@ -201,6 +188,138 @@ const HabitUpsertForm = ({ habitData, handleCancelClick, onSuccess }) => {
           error={errors.title}
           required
         />
+        {/* Focus Area Dropdown */}
+        <DropDown
+          className="mt-4"
+          id="focusArea"
+          label="Focus Area"
+          required
+          optionsObject={focusAreas.items || []}
+          selected={formData.focusAreaId}
+          onChange={(e) => handleChange("focusAreaId", e.target.value)}
+          placeholder="Select a focus area"
+          error={errors.focusAreaId}
+        />
+
+        {/* Activity Section */}
+        <div className="mt-4">
+          <h3 className="text-sm font-medium text-gray-700 mb-1">
+            Activity Details
+          </h3>
+
+          <div className="p-4 border border-gray-200 rounded-md">
+            <InputField
+              label={"Activity Description"}
+              placeholder={"Describe the habit activity"}
+              value={formData.activity.text}
+              error={errors.activity}
+              type="textarea"
+              rows="3"
+              required
+              onChange={(e) =>
+                handleNestedChange("activity", "text", e.target.value)
+              }
+            />
+
+            <div className="mt-3">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Activity Steps
+              </label>
+              {formData.activity.children.map((step, index) => (
+                <div key={index} className="flex items-center mb-2">
+                  <InputField
+                    placeholder={`Step ${index + 1}`}
+                    value={step}
+                    onChange={(e) =>
+                      handleNestedChange(
+                        "activity",
+                        "children",
+                        e.target.value,
+                        index
+                      )
+                    }
+                    className="flex-1"
+                  />
+                  {formData.activity.children.length > 1 && (
+                    <button
+                      type="button"
+                      className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
+                      onClick={() =>
+                        removeChildItem("activity", "children", index)
+                      }
+                    >
+                      <i className="fas fa-trash"></i>
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                className="mt-1 text-sm text-blue-600 hover:text-blue-800 cursor-pointer"
+                onClick={() => addChildItem("activity", "children")}
+              >
+                + Add Step
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Tips Section */}
+        <div className="mt-6">
+          <h3 className="text-lg font-medium text-gray-700 mb-4">Tips</h3>
+
+          <div className="p-4 border border-gray-200 rounded-md">
+            <InputField
+              label={"Tips Description"}
+              placeholder={"Provide general tips for this habit"}
+              value={formData.tips.text}
+              type="textarea"
+              rows="3"
+              onChange={(e) =>
+                handleNestedChange("tips", "text", e.target.value)
+              }
+            />
+
+            <div className="mt-3">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Additional Tips
+              </label>
+              {formData.tips.children.map((tip, index) => (
+                <div key={index} className="flex items-center mb-2">
+                  <InputField
+                    placeholder={`Tip ${index + 1}`}
+                    value={tip}
+                    onChange={(e) =>
+                      handleNestedChange(
+                        "tips",
+                        "children",
+                        e.target.value,
+                        index
+                      )
+                    }
+                    className="flex-1"
+                  />
+                  {formData.tips.children.length > 1 && (
+                    <button
+                      type="button"
+                      className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
+                      onClick={() => removeChildItem("tips", "children", index)}
+                    >
+                      <i className="fas fa-trash"></i>
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                className="mt-1 text-sm text-blue-600 hover:text-blue-800 cursor-pointer"
+                onClick={() => addChildItem("tips", "children")}
+              >
+                + Add Tip
+              </button>
+            </div>
+          </div>
+        </div>
 
         {/* Record Points Field */}
         <InputField
@@ -214,169 +333,6 @@ const HabitUpsertForm = ({ habitData, handleCancelClick, onSuccess }) => {
           min="0"
           required={true}
         />
-
-        {/* Activity Section - Optional */}
-        <div className="mt-4">
-          <div
-            className="flex items-center cursor-pointer p-2 bg-gray-100 rounded-md"
-            onClick={() => setShowActivitySection(!showActivitySection)}
-          >
-            <i
-              className={`fas ${
-                showActivitySection ? "fa-chevron-down" : "fa-chevron-right"
-              } mr-2`}
-            ></i>
-            <h3 className="text-lg font-medium text-gray-700">
-              Activity Details (Optional)
-            </h3>
-            <button
-              type="button"
-              className="ml-auto text-sm text-blue-600 hover:text-blue-800"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowActivitySection(true);
-              }}
-            ></button>
-          </div>
-
-          {showActivitySection && (
-            <div className="mt-2 p-4 border border-gray-200 rounded-md">
-              <InputField
-                label={"Activity Description"}
-                placeholder={"Describe the habit activity"}
-                value={formData.activity.text}
-                type="textarea"
-                rows="3"
-                onChange={(e) =>
-                  handleNestedChange("activity", "text", e.target.value)
-                }
-              />
-
-              <div className="mt-3">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Activity Steps
-                </label>
-                {formData.activity.children.map((step, index) => (
-                  <div key={index} className="flex items-center mb-2">
-                    <InputField
-                      placeholder={`Step ${index + 1}`}
-                      value={step}
-                      onChange={(e) =>
-                        handleNestedChange(
-                          "activity",
-                          "children",
-                          e.target.value,
-                          index
-                        )
-                      }
-                      className="flex-1"
-                    />
-                    {formData.activity.children.length > 1 && (
-                      <button
-                        type="button"
-                        className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                        onClick={() =>
-                          removeChildItem("activity", "children", index)
-                        }
-                      >
-                        <i className="fas fa-trash"></i>
-                      </button>
-                    )}
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  className="mt-1 text-sm text-blue-600 hover:text-blue-800 cursor-pointer"
-                  onClick={() => addChildItem("activity", "children")}
-                >
-                  + Add Step
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Tips Section - Optional */}
-        <div className="mt-4">
-          <div
-            className="flex items-center cursor-pointer p-2 bg-gray-100 rounded-md"
-            onClick={() => setShowTipsSection(!showTipsSection)}
-          >
-            <i
-              className={`fas ${
-                showTipsSection ? "fa-chevron-down" : "fa-chevron-right"
-              } mr-2`}
-            ></i>
-            <h3 className="text-lg font-medium text-gray-700">
-              Tips (Optional)
-            </h3>
-            <button
-              type="button"
-              className="ml-auto text-sm text-blue-600 hover:text-blue-800"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowTipsSection(true);
-              }}
-            ></button>
-          </div>
-
-          {showTipsSection && (
-            <div className="mt-2 p-4 border border-gray-200 rounded-md">
-              <InputField
-                label={"Tips Description"}
-                placeholder={"Provide general tips for this habit"}
-                value={formData.tips.text}
-                type="textarea"
-                rows="3"
-                onChange={(e) =>
-                  handleNestedChange("tips", "text", e.target.value)
-                }
-              />
-
-              <div className="mt-3">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Additional Tips
-                </label>
-                {formData.tips.children.map((tip, index) => (
-                  <div key={index} className="flex items-center mb-2">
-                    <InputField
-                      placeholder={`Tip ${index + 1}`}
-                      value={tip}
-                      onChange={(e) =>
-                        handleNestedChange(
-                          "tips",
-                          "children",
-                          e.target.value,
-                          index
-                        )
-                      }
-                      className="flex-1"
-                    />
-                    {formData.tips.children.length > 1 && (
-                      <button
-                        type="button"
-                        className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                        onClick={() =>
-                          removeChildItem("tips", "children", index)
-                        }
-                      >
-                        <i className="fas fa-trash"></i>
-                      </button>
-                    )}
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  className="mt-1 text-sm text-blue-600 hover:text-blue-800 cursor-pointer"
-                  onClick={() => addChildItem("tips", "children")}
-                >
-                  + Add Tip
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
         {/* Difficulty Level */}
         <div className="mt-4">
           <DropDown
@@ -403,23 +359,11 @@ const HabitUpsertForm = ({ habitData, handleCancelClick, onSuccess }) => {
           />
           <InputField
             type="date"
-            label="Active To (Optional)"
+            label="Active To"
             value={formData.activeTo}
-            onChange={(e) => handleChange("activeTo", e.target.value)}
-          />
-        </div>
-
-        {/* Focus Area Dropdown */}
-        <div className="mt-4">
-          <DropDown
-            id="focusArea"
-            label="Focus Area"
+            error={errors.activeTo}
             required
-            optionsObject={focusAreas.items || []}
-            selected={formData.focusAreaId}
-            onChange={(e) => handleChange("focusAreaId", e.target.value)}
-            placeholder="Select a focus area"
-            error={errors.focusAreaId}
+            onChange={(e) => handleChange("activeTo", e.target.value)}
           />
         </div>
 

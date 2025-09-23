@@ -25,8 +25,6 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
   });
 
   const [errors, setErrors] = useState({});
-  const [showActivitySection, setShowActivitySection] = useState(true);
-  const [showKeyTakeawaysSection, setShowKeyTakeawaysSection] = useState(false);
   const challenges = useSelector((state) => state.challenge);
 
   const handleChange = (fieldName, value) => {
@@ -126,38 +124,25 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
       newErrors.challengeId = "Challenge is required";
     }
 
-    // Validate order
+    // Validate order - must be greater than 0
     const orderValue = parseInt(formData.order) || 0;
     if (!formData.order && formData.order !== 0) {
       newErrors.order = "Order is required";
+    } else if (orderValue <= 0) {
+      newErrors.order = "Order must be greater than 0";
     }
 
-    // Validate XP
+    // Validate XP - must be greater than 0
     const xpValue = parseInt(formData.xp) || 0;
     if (!formData.xp && formData.xp !== 0) {
       newErrors.xp = "XP is required";
-    } else if (xpValue < 0) {
-      newErrors.xp = "XP should be 0 or greater";
+    } else if (xpValue <= 0) {
+      newErrors.xp = "XP must be greater than 0";
     }
 
-    // Activity validation (mandatory)
+    // Activity validation - only description is mandatory
     if (!formData.activity.text.trim()) {
       newErrors.activityText = "Activity description is required";
-    }
-    if (
-      !formData.activity.children ||
-      formData.activity.children.filter((c) => c.trim() !== "").length === 0
-    ) {
-      newErrors.activityChildren = "At least one activity step is required";
-    }
-
-    // Key takeaways validation (if section is shown and has content)
-    if (
-      showKeyTakeawaysSection &&
-      formData.keyTakeaways.filter((item) => item.trim() !== "").length === 0
-    ) {
-      newErrors.keyTakeaways =
-        "At least one key takeaway is required when this section is enabled";
     }
 
     setErrors(newErrors);
@@ -182,6 +167,8 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
       keyTakeaways: formData.keyTakeaways.filter((item) => item.trim() !== ""),
       order: parseInt(formData.order) || 0,
       xp: parseInt(formData.xp) || 0,
+      // Keep mediaId as is (can be null or empty)
+      mediaId: formData.mediaId || null,
     };
 
     dispatch(upsertTask(payload)).then((action) => {
@@ -279,7 +266,7 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
         {/* Media ID Field */}
         <InputField
           className="mt-4"
-          label={"Media ID (Optional)"}
+          label={"Media ID"}
           placeholder={"Enter media ID"}
           value={formData.mediaId}
           onChange={(e) => handleChange("mediaId", e.target.value)}
@@ -287,11 +274,11 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
 
         {/* Activity Section - Required */}
         <div className="mt-4">
-          <h3 className="text-lg font-medium text-gray-700">
+          <h3 className="text-sm font-medium text-gray-700 mb-1">
             Activity Details
           </h3>
 
-          <div className="mt-2 p-4 border border-gray-200 rounded-md">
+          <div className="p-4 border border-gray-200 rounded-md">
             <InputField
               label={"Activity Description"}
               placeholder={"Describe the task activity"}
@@ -323,7 +310,6 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
                       )
                     }
                     className="flex-1"
-                    error={index === 0 ? errors.activityChildren : ""}
                   />
                   {formData.activity.children.length > 1 && (
                     <button
@@ -349,60 +335,47 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
           </div>
         </div>
 
-        {/* Key Takeaways Section - Optional */}
+        {/* Key Takeaways Section  */}
         <div className="mt-4">
-          <div
-            className="flex items-center cursor-pointer p-2 bg-gray-100 rounded-md"
-            onClick={() => setShowKeyTakeawaysSection(!showKeyTakeawaysSection)}
-          >
-            <i
-              className={`fas ${
-                showKeyTakeawaysSection ? "fa-chevron-down" : "fa-chevron-right"
-              } mr-2`}
-            ></i>
-            <h3 className="text-lg font-medium text-gray-700">
-              Key Takeaways (Optional)
-            </h3>
-          </div>
+          <h3 className="text-sm font-medium text-gray-700 mb-1">
+            Key Takeaways
+          </h3>
 
-          {showKeyTakeawaysSection && (
-            <div className="mt-2 p-4 border border-gray-200 rounded-md">
-              <div className="mt-3">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Key Takeaways
-                </label>
-                {formData.keyTakeaways.map((takeaway, index) => (
-                  <div key={index} className="flex items-center mb-2">
-                    <InputField
-                      placeholder={`Key takeaway ${index + 1}`}
-                      value={takeaway}
-                      onChange={(e) =>
-                        handleArrayChange("keyTakeaways", e.target.value, index)
-                      }
-                      className="flex-1"
-                      error={index === 0 ? errors.keyTakeaways : ""}
-                    />
-                    {formData.keyTakeaways.length > 1 && (
-                      <button
-                        type="button"
-                        className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                        onClick={() => removeArrayItem("keyTakeaways", index)}
-                      >
-                        <i className="fas fa-trash"></i>
-                      </button>
-                    )}
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  className="mt-1 text-sm text-blue-600 hover:text-blue-800 cursor-pointer"
-                  onClick={() => addArrayItem("keyTakeaways")}
-                >
-                  + Add Key Takeaway
-                </button>
-              </div>
+          <div className="p-4 border border-gray-200 rounded-md">
+            <div className="mt-3">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Key Takeaways
+              </label>
+              {formData.keyTakeaways.map((takeaway, index) => (
+                <div key={index} className="flex items-center mb-2">
+                  <InputField
+                    placeholder={`Key takeaway ${index + 1}`}
+                    value={takeaway}
+                    onChange={(e) =>
+                      handleArrayChange("keyTakeaways", e.target.value, index)
+                    }
+                    className="flex-1"
+                  />
+                  {formData.keyTakeaways.length > 1 && (
+                    <button
+                      type="button"
+                      className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
+                      onClick={() => removeArrayItem("keyTakeaways", index)}
+                    >
+                      <i className="fas fa-trash"></i>
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                className="mt-1 text-sm text-blue-600 hover:text-blue-800 cursor-pointer"
+                onClick={() => addArrayItem("keyTakeaways")}
+              >
+                + Add Key Takeaway
+              </button>
             </div>
-          )}
+          </div>
         </div>
 
         {/* Buttons */}

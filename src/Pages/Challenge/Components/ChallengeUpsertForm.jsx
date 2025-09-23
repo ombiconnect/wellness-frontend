@@ -29,7 +29,6 @@ const ChallengeUpsertForm = ({
   });
 
   const [errors, setErrors] = useState({});
-  const [showBenefits, setShowBenefits] = useState(false);
   const focusAreas = useSelector((state) => state.focusArea);
 
   const difficultyLevels = [
@@ -76,20 +75,22 @@ const ChallengeUpsertForm = ({
     if (!formData.title.trim()) {
       newErrors.title = "Challenge title is required";
     }
-
+    if (!formData.about.trim()) {
+      newErrors.about = "About is required";
+    }
     if (!formData.focusAreaId) {
       newErrors.focusAreaId = "Focus area is required";
     }
 
-    if (formData.xp < 0) {
+    if (formData.xp <= 0) {
       newErrors.xp = "XP must be greater than 0";
     }
 
-    if (formData.averageDuration && formData.averageDuration < 0) {
+    if (!formData.averageDuration && formData.averageDuration <= 0) {
       newErrors.averageDuration = "Duration be greater than 0";
     }
 
-    if (formData.durationDays && formData.durationDays < 0) {
+    if (!formData.durationDays && formData.durationDays <= 0) {
       newErrors.durationDays = "Duration days be greater than 0";
     }
     if (!formData.difficultyLevel.trim()) {
@@ -129,9 +130,6 @@ const ChallengeUpsertForm = ({
 
   useEffect(() => {
     if (challengeData) {
-      const hasBenefits =
-        challengeData.benefits && challengeData.benefits.length > 0;
-
       setFormData({
         id: challengeData.id || "",
         title: challengeData.title || "",
@@ -152,8 +150,6 @@ const ChallengeUpsertForm = ({
         focusAreaId: challengeData.focusAreaId || "",
         durationDays: challengeData.durationDays || "",
       });
-
-      setShowBenefits(hasBenefits);
     }
     setErrors({});
   }, [challengeData]);
@@ -177,7 +173,7 @@ const ChallengeUpsertForm = ({
         <InputField
           className="mt-4"
           placeholder={"Brief subtitle for the challenge"}
-          label={"Subtitle (Optional)"}
+          label={"Subtitle"}
           value={formData.subtitle}
           onChange={(e) => handleChange("subtitle", e.target.value)}
         />
@@ -189,60 +185,46 @@ const ChallengeUpsertForm = ({
           value={formData.about}
           type="textarea"
           rows="3"
+          error={errors.about}
           onChange={(e) => handleChange("about", e.target.value)}
+          required
         />
 
-        {/* Benefits Section - Optional */}
+        {/* Benefits Section */}
         <div className="mt-4">
-          <div
-            className="flex items-center cursor-pointer p-2 bg-gray-100 rounded-md"
-            onClick={() => setShowBenefits(!showBenefits)}
-          >
-            <i
-              className={`fas ${
-                showBenefits ? "fa-chevron-down" : "fa-chevron-right"
-              } mr-2`}
-            ></i>
-            <h3 className="text-lg font-medium text-gray-700">
-              Benefits (Optional)
-            </h3>
-          </div>
+          <h3 className="text-sm font-medium text-gray-700 ">Benefits</h3>
 
-          {showBenefits && (
-            <div className="mt-2 p-4 border border-gray-200 rounded-md">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Challenge Benefits
-              </label>
-              {formData.benefits.map((benefit, index) => (
-                <div key={index} className="flex items-center mb-2">
-                  <InputField
-                    placeholder={`Benefit ${index + 1}`}
-                    value={benefit}
-                    onChange={(e) =>
-                      handleBenefitsChange(e.target.value, index)
-                    }
-                    className="flex-1"
-                  />
-                  {formData.benefits.length > 1 && (
-                    <button
-                      type="button"
-                      className="ml-2 text-red-500 hover:text-red-700"
-                      onClick={() => removeBenefit(index)}
-                    >
-                      <i className="fas fa-trash"></i>
-                    </button>
-                  )}
-                </div>
-              ))}
-              <button
-                type="button"
-                className="mt-1 text-sm text-blue-600 hover:text-blue-800 flex items-center"
-                onClick={addBenefit}
-              >
-                <i className="fas fa-plus mr-1"></i> Add Benefit
-              </button>
-            </div>
-          )}
+          <div className="p-4 border border-gray-200 rounded-md">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Challenge Benefits
+            </label>
+            {formData.benefits.map((benefit, index) => (
+              <div key={index} className="flex items-center mb-2">
+                <InputField
+                  placeholder={`Benefit ${index + 1}`}
+                  value={benefit}
+                  onChange={(e) => handleBenefitsChange(e.target.value, index)}
+                  className="flex-1"
+                />
+                {formData.benefits.length > 1 && (
+                  <button
+                    type="button"
+                    className="ml-2 text-red-500 hover:text-red-700"
+                    onClick={() => removeBenefit(index)}
+                  >
+                    <i className="fas fa-trash"></i>
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              className="mt-1 text-sm text-blue-600 hover:text-blue-800 flex items-center"
+              onClick={addBenefit}
+            >
+              <i className="fas fa-plus mr-1"></i> Add Benefit
+            </button>
+          </div>
         </div>
 
         {/* Stats Section */}
@@ -254,6 +236,7 @@ const ChallengeUpsertForm = ({
             value={formData.xp}
             onChange={(e) => handleChange("xp", e.target.value)}
             error={errors.xp}
+            required
             min="0"
           />
 
@@ -264,6 +247,7 @@ const ChallengeUpsertForm = ({
             value={formData.averageDuration}
             onChange={(e) => handleChange("averageDuration", e.target.value)}
             error={errors.averageDuration}
+            required
             min="0"
           />
 
@@ -274,6 +258,7 @@ const ChallengeUpsertForm = ({
             value={formData.durationDays}
             onChange={(e) => handleChange("durationDays", e.target.value)}
             error={errors.durationDays}
+            required
             min="0"
           />
         </div>
@@ -295,7 +280,7 @@ const ChallengeUpsertForm = ({
         {/* Image URL */}
         <InputField
           className="mt-4"
-          label={"Image URL (Optional)"}
+          label={"Image URL"}
           placeholder={"https://example.com/image.jpg"}
           value={formData.imageUrl}
           onChange={(e) => handleChange("imageUrl", e.target.value)}
@@ -321,7 +306,7 @@ const ChallengeUpsertForm = ({
         <div className="mt-4">
           <DropDown
             id="focusArea"
-            label="Focus Area *"
+            label="Focus Area"
             required
             optionsObject={focusAreas.items || []}
             selected={formData.focusAreaId}
