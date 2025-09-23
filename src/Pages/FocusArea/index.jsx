@@ -132,11 +132,19 @@ const FocusArea = () => {
       />
 
       <Modal
-        title={"Delete Focus Area"}
+        title="Delete Focus Area"
         body={
-          <h1>
+          <h1 className="text-gray-800">
             Are you sure you want to delete
-            <span className="text-red-700"> {deleteFocusAreaData?.name}</span>?
+            <span className="text-red-700 font-semibold">
+              {" "}
+              {deleteFocusAreaData?.name}
+            </span>
+            ?<br />
+            <span className="text-sm text-gray-600">
+              This action will also permanently delete all habits, challenges,
+              and related data linked to this focus area.
+            </span>
           </h1>
         }
         footer={

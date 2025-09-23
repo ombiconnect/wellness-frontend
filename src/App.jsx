@@ -13,6 +13,7 @@ import FocusArea from "./Pages/FocusArea";
 import Habit from "./Pages/Habit";
 import Challenge from "./Pages/Challenge";
 import Member from "./Pages/Member";
+import Task from "./Pages/Task";
 
 function App() {
   const dispatch = useDispatch();
@@ -47,6 +48,7 @@ function App() {
             <Route path="/habit" element={<Habit />} />
             <Route path="/challenge" element={<Challenge />} />
             <Route path="/member" element={<Member />} />
+            <Route path="/task" element={<Task />} />
           </Route>
         </Routes>
       ) : (

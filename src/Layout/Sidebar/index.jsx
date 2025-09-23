@@ -11,6 +11,7 @@ const Sidebar = () => {
     { name: "Focus Areas", icon: "fa-bullseye", path: "/focus-area" },
     { name: "Habits", icon: "fa-repeat", path: "/habit" },
     { name: "Challenges", icon: "fa-trophy", path: "/challenge" },
+    { name: "Task", icon: "fa-list-check", path: "/task" },
   ];
 
   const isActive = (path) => {

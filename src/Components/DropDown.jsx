@@ -48,7 +48,7 @@ const DropDown = ({
         {Array.isArray(optionsObject) &&
           optionsObject.map((option, index) => (
             <option key={index} value={option.id}>
-              {option.name}
+              {option.name ?? option.title}
             </option>
           ))}
       </select>

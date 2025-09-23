@@ -33,6 +33,10 @@ const Header = () => {
       title: "Challenges",
       description: "Create and manage challenges",
     },
+    "/task": {
+      title: "Tasks",
+      description: "Create and manage Tasks",
+    },
   };
 
   const currentPage = pageTitles[location.pathname] || {

@@ -137,10 +137,18 @@ const Challenge = () => {
       <Modal
         title={"Delete Challenge"}
         body={
-          <h1>
-            Are you sure you want to delete
-            <span className="text-red-700"> {deleteChallengeData?.name}</span>?
-          </h1>
+          <div>
+            <h1>
+              Are you sure you want to delete
+              <span className="text-red-700"> {deleteChallengeData?.name}</span>
+              ?
+            </h1>
+            <br />
+            <span className="text-sm text-gray-600">
+              This action will also permanently delete all Tasks associated to
+              this challenge.
+            </span>
+          </div>
         }
         footer={
           <div className="mt-4 border-gray-200 flex justify-end space-x-3">

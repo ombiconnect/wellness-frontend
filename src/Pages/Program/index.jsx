@@ -76,9 +76,7 @@ const Program = () => {
     subtitle: program.description ?? "",
     status: program.status?.toLowerCase() ?? "draft",
     metrics: {
-      "Focus Areas": program?._count?.focusAreas ?? 0,
-      habits: program.habits ?? 0,
-      members: program.members ?? 0,
+      "Focus Area": program?._count?.focusAreas ?? 0,
     },
     color: "#2563eb",
     icon: "fa-layer-group",
