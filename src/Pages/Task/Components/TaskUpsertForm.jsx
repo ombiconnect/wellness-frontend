@@ -5,7 +5,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { upsertTask } from "../../../Thunks/Task";
 import DropDown from "../../../Components/DropDown";
 import { getAllChallenges } from "../../../Thunks/Challenge";
-
+import { getDownloadURL, ref } from "firebase/storage";
+import { storage } from "../../../Firebase/Firebase";
 const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
   const dispatch = useDispatch();
 
@@ -26,20 +27,47 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
       body: "",
       file: null,
       posterUrl: "",
+      type: "",
     },
   });
 
+  const [previewUrl, setPreviewUrl] = useState("");
   const [errors, setErrors] = useState({});
   const challenges = useSelector((state) => state.challenge);
 
-  // Add missing handleChange function
+  // Fetch preview URL when taskData changes
+  useEffect(() => {
+    const fetchPreviewUrl = async () => {
+      if (taskData?.media?.posterUrl) {
+        try {
+          // If it's a full URL (already uploaded), use it directly
+          if (taskData.media.posterUrl.startsWith("http")) {
+            setPreviewUrl(taskData.media.posterUrl);
+          } else {
+            // If it's a storage path, get download URL
+            const url = await getDownloadURL(
+              ref(storage, taskData.media.posterUrl)
+            );
+            setPreviewUrl(url);
+          }
+        } catch (error) {
+          console.error("Error fetching preview URL:", error);
+          setPreviewUrl("");
+        }
+      } else {
+        setPreviewUrl("");
+      }
+    };
+
+    fetchPreviewUrl();
+  }, [taskData]);
+
   const handleChange = (fieldName, value) => {
     setFormData((prev) => ({
       ...prev,
       [fieldName]: value,
     }));
 
-    // Clear field errors when user types
     if (errors[fieldName]) {
       setErrors((prev) => ({ ...prev, [fieldName]: "" }));
     }
@@ -60,7 +88,6 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
       return { ...prev, [parentField]: updatedParent };
     });
 
-    // Clear nested field errors when user types
     const errorKey =
       index !== null
         ? `${parentField}${
@@ -69,6 +96,7 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
         : `${parentField}${
             fieldName.charAt(0).toUpperCase() + fieldName.slice(1)
           }`;
+
     if (errors[errorKey]) {
       setErrors((prev) => ({ ...prev, [errorKey]: "" }));
     }
@@ -81,7 +109,6 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
       return { ...prev, [fieldName]: updatedArray };
     });
 
-    // Clear array field errors when user types
     if (errors[fieldName]) {
       setErrors((prev) => ({ ...prev, [fieldName]: "" }));
     }
@@ -120,18 +147,52 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
     });
   };
 
-  // Handle file upload specifically
+  // Handle file upload with preview
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const type = file.type.startsWith("video") ? "VIDEO" : "IMAGE";
+
+      // Create preview URL for images
+      if (file.type.startsWith("image")) {
+        const url = URL.createObjectURL(file);
+        setPreviewUrl(url);
+      } else {
+        setPreviewUrl(""); // Clear preview for videos
+      }
+
       setFormData((prev) => ({
         ...prev,
         media: {
           ...prev.media,
           file: file,
           type: type,
+          // Clear existing posterUrl when new file is selected
+          posterUrl: "",
         },
+      }));
+    }
+  };
+
+  // Remove current media
+  const handleRemoveMedia = () => {
+    setFormData((prev) => ({
+      ...prev,
+      media: {
+        title: "",
+        body: "",
+        file: null,
+        posterUrl: "",
+        type: "",
+      },
+    }));
+    setPreviewUrl("");
+
+    // If we're editing an existing task with media, set media to null to delete it
+    if (taskData?.media) {
+      setFormData((prev) => ({
+        ...prev,
+        media: null, // This will trigger deletion in the repository
       }));
     }
   };
@@ -151,7 +212,6 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
       newErrors.challengeId = "Challenge is required";
     }
 
-    // Validate order - must be greater than 0
     const orderValue = parseInt(formData.order) || 0;
     if (!formData.order && formData.order !== 0) {
       newErrors.order = "Order is required";
@@ -159,7 +219,6 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
       newErrors.order = "Order must be greater than 0";
     }
 
-    // Validate XP - must be greater than 0
     const xpValue = parseInt(formData.xp) || 0;
     if (!formData.xp && formData.xp !== 0) {
       newErrors.xp = "XP is required";
@@ -167,7 +226,6 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
       newErrors.xp = "XP must be greater than 0";
     }
 
-    // Activity validation - only description is mandatory
     if (!formData.activity.text.trim()) {
       newErrors.activityText = "Activity description is required";
     }
@@ -196,6 +254,11 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
       xp: parseInt(formData.xp) || 0,
     };
 
+    // If media is completely removed, send null
+    if (formData.media === null) {
+      payload.media = null;
+    }
+
     dispatch(upsertTask(payload)).then((action) => {
       if (upsertTask.fulfilled.match(action)) {
         if (onSuccess) onSuccess();
@@ -214,13 +277,39 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
         xp: taskData.xp || 0,
         activity: taskData.activity || { text: "", children: [""] },
         keyTakeaways: taskData.keyTakeaways || [""],
-        media: taskData.media || {
+        media: taskData.media
+          ? {
+              ...taskData.media,
+              file: null, // Don't include file from existing data
+            }
+          : {
+              title: "",
+              body: "",
+              file: null,
+              posterUrl: "",
+              type: "",
+            },
+      });
+    } else {
+      // Reset form for new task
+      setFormData({
+        id: "",
+        title: "",
+        description: "",
+        challengeId: "",
+        order: 0,
+        xp: 0,
+        activity: { text: "", children: [""] },
+        keyTakeaways: [""],
+        media: {
           title: "",
           body: "",
           file: null,
           posterUrl: "",
+          type: "",
         },
       });
+      setPreviewUrl("");
     }
     setErrors({});
   }, [taskData]);
@@ -293,14 +382,37 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
           />
         </div>
 
-        {/* Media*/}
+        {/* Media Section */}
         <div className="mt-4">
           <h3 className="text-sm font-medium text-gray-700 mb-1">Media</h3>
           <div className="p-4 border border-gray-200 rounded-md">
+            {/* Preview Image */}
+            {(previewUrl || formData.media?.posterUrl) && (
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Preview
+                </label>
+                <div className="relative inline-block">
+                  <img
+                    src={previewUrl || formData.media.posterUrl}
+                    alt="Preview"
+                    className="h-32 w-auto rounded border"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveMedia}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            )}
+
             <InputField
               label={"Title"}
               placeholder={"Enter Title"}
-              value={formData.media.title}
+              value={formData.media?.title || ""}
               onChange={(e) =>
                 handleNestedChange("media", "title", e.target.value)
               }
@@ -309,7 +421,7 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
               className="mt-4"
               label={"Description"}
               placeholder={"Enter Description"}
-              value={formData.media.body}
+              value={formData.media?.body || ""}
               onChange={(e) =>
                 handleNestedChange("media", "body", e.target.value)
               }
@@ -326,21 +438,23 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
                 onChange={handleFileChange}
                 className="border p-2 rounded w-full"
               />
-              {formData.media.file && (
+              {formData.media?.file && (
                 <p className="text-sm text-gray-600 mt-1">
                   Selected file: {formData.media.file.name}
                 </p>
               )}
+              <p className="text-xs text-gray-500 mt-1">
+                Supported types: Images and Videos
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Activity Section - Required */}
+        {/* Activity Section */}
         <div className="mt-4">
           <h3 className="text-sm font-medium text-gray-700 mb-1">
             Activity Details
           </h3>
-
           <div className="p-4 border border-gray-200 rounded-md">
             <InputField
               label={"Activity Description"}
@@ -398,12 +512,11 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
           </div>
         </div>
 
-        {/* Key Takeaways Section  */}
+        {/* Key Takeaways Section */}
         <div className="mt-4">
           <h3 className="text-sm font-medium text-gray-700 mb-1">
             Key Takeaways
           </h3>
-
           <div className="p-4 border border-gray-200 rounded-md">
             <div className="mt-3">
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -457,7 +570,7 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
             size="medium"
             onClick={handleUpsert}
           >
-            Save Task
+            {formData.id ? "Update Task" : "Save Task"}
           </Button>
         </div>
       </form>
