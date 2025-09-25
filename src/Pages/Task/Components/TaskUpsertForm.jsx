@@ -16,19 +16,30 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
     challengeId: "",
     order: 0,
     xp: 0,
-    mediaId: null,
     activity: {
       text: "",
       children: [""],
     },
     keyTakeaways: [""],
+    media: {
+      title: "",
+      body: "",
+      file: null,
+      posterUrl: "",
+    },
   });
 
   const [errors, setErrors] = useState({});
   const challenges = useSelector((state) => state.challenge);
 
+  // Add missing handleChange function
   const handleChange = (fieldName, value) => {
-    setFormData((prev) => ({ ...prev, [fieldName]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [fieldName]: value,
+    }));
+
+    // Clear field errors when user types
     if (errors[fieldName]) {
       setErrors((prev) => ({ ...prev, [fieldName]: "" }));
     }
@@ -109,6 +120,22 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
     });
   };
 
+  // Handle file upload specifically
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const type = file.type.startsWith("video") ? "VIDEO" : "IMAGE";
+      setFormData((prev) => ({
+        ...prev,
+        media: {
+          ...prev.media,
+          file: file,
+          type: type,
+        },
+      }));
+    }
+  };
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -167,8 +194,6 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
       keyTakeaways: formData.keyTakeaways.filter((item) => item.trim() !== ""),
       order: parseInt(formData.order) || 0,
       xp: parseInt(formData.xp) || 0,
-      // Keep mediaId as is (can be null or empty)
-      mediaId: formData.mediaId || null,
     };
 
     dispatch(upsertTask(payload)).then((action) => {
@@ -187,9 +212,14 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
         challengeId: taskData.challengeId || "",
         order: taskData.order || 0,
         xp: taskData.xp || 0,
-        mediaId: taskData.mediaId || null,
         activity: taskData.activity || { text: "", children: [""] },
         keyTakeaways: taskData.keyTakeaways || [""],
+        media: taskData.media || {
+          title: "",
+          body: "",
+          file: null,
+          posterUrl: "",
+        },
       });
     }
     setErrors({});
@@ -263,14 +293,47 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
           />
         </div>
 
-        {/* Media ID Field */}
-        <InputField
-          className="mt-4"
-          label={"Media ID"}
-          placeholder={"Enter media ID"}
-          value={formData.mediaId}
-          onChange={(e) => handleChange("mediaId", e.target.value)}
-        />
+        {/* Media*/}
+        <div className="mt-4">
+          <h3 className="text-sm font-medium text-gray-700 mb-1">Media</h3>
+          <div className="p-4 border border-gray-200 rounded-md">
+            <InputField
+              label={"Title"}
+              placeholder={"Enter Title"}
+              value={formData.media.title}
+              onChange={(e) =>
+                handleNestedChange("media", "title", e.target.value)
+              }
+            />
+            <InputField
+              className="mt-4"
+              label={"Description"}
+              placeholder={"Enter Description"}
+              value={formData.media.body}
+              onChange={(e) =>
+                handleNestedChange("media", "body", e.target.value)
+              }
+              type="textarea"
+              rows="3"
+            />
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Media File
+              </label>
+              <input
+                type="file"
+                accept="image/*,video/*"
+                onChange={handleFileChange}
+                className="border p-2 rounded w-full"
+              />
+              {formData.media.file && (
+                <p className="text-sm text-gray-600 mt-1">
+                  Selected file: {formData.media.file.name}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
 
         {/* Activity Section - Required */}
         <div className="mt-4">

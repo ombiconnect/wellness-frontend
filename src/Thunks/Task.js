@@ -1,5 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { getAxios } from "../Axios";
+import { ref, uploadBytes } from "firebase/storage";
+import { storage } from "../Firebase/Firebase";
 
 // Upsert Task
 export const upsertTask = createAsyncThunk(
@@ -13,8 +15,8 @@ export const upsertTask = createAsyncThunk(
       keyTakeaways,
       challengeId,
       order,
-      mediaId,
       xp,
+      media,
     },
     { rejectWithValue }
   ) => {
@@ -26,9 +28,31 @@ export const upsertTask = createAsyncThunk(
         keyTakeaways,
         challengeId,
         order: order ? parseInt(order) : 0,
-        mediaId,
         xp: xp ? parseInt(xp) : 0,
+        media: {
+          title: media?.title || "",
+          body: media?.body || "",
+          posterUrl: media?.posterUrl || "",
+          type: media?.type || undefined,
+        },
       };
+      // Handle file upload if a file is present
+      if (media?.file) {
+        const folder = media.file.type.startsWith("video")
+          ? "task/video"
+          : "task/image";
+        const name = `${folder}/${Date.now()}-${media.file.name}`;
+        const fileRef = ref(storage, name);
+
+        // Upload the file
+        await uploadBytes(fileRef, media.file);
+
+        // Update payload with file URL
+        payload.media.posterUrl = name;
+        payload.media.type = media.file.type.startsWith("video")
+          ? "VIDEO"
+          : "AUDIO";
+      }
 
       let response;
       if (id) {
