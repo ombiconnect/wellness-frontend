@@ -7,6 +7,7 @@ import DropDown from "../../../Components/DropDown";
 import { getAllChallenges } from "../../../Thunks/Challenge";
 import { getDownloadURL, ref } from "firebase/storage";
 import { storage } from "../../../Firebase/Firebase";
+
 const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
   const dispatch = useDispatch();
 
@@ -25,13 +26,16 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
     media: {
       title: "",
       body: "",
-      file: null,
+      file: null, // This will be the media file (audio/video)
+      thumbnailFile: null, // New: separate thumbnail file
       posterUrl: "",
+      mediaUrl: "", // New: for storing media file path
       type: "",
     },
   });
 
   const [previewUrl, setPreviewUrl] = useState("");
+  const [mediaPreviewUrl, setMediaPreviewUrl] = useState(""); // New: for media preview
   const [errors, setErrors] = useState({});
   const challenges = useSelector((state) => state.challenge);
 
@@ -56,6 +60,25 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
         }
       } else {
         setPreviewUrl("");
+      }
+
+      // Fetch media preview URL
+      if (taskData?.media?.audio?.url || taskData?.media?.video?.url) {
+        try {
+          const mediaPath =
+            taskData.media.audio?.url || taskData.media.video?.url;
+          if (mediaPath.startsWith("http")) {
+            setMediaPreviewUrl(mediaPath);
+          } else {
+            const url = await getDownloadURL(ref(storage, mediaPath));
+            setMediaPreviewUrl(url);
+          }
+        } catch (error) {
+          console.error("Error fetching media preview URL:", error);
+          setMediaPreviewUrl("");
+        }
+      } else {
+        setMediaPreviewUrl("");
       }
     };
 
@@ -147,18 +170,45 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
     });
   };
 
-  // Handle file upload with preview
+  // Handle thumbnail file upload
+  const handleThumbnailChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith("image")) {
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+
+      setFormData((prev) => ({
+        ...prev,
+        media: {
+          ...prev.media,
+          thumbnailFile: file,
+          posterUrl: "", // Clear existing posterUrl when new file is selected
+        },
+      }));
+    }
+  };
+
+  // Handle media file upload (audio/video) - Modified existing function
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const type = file.type.startsWith("video") ? "VIDEO" : "IMAGE";
+      const type = file.type.startsWith("video")
+        ? "VIDEO"
+        : file.type.startsWith("audio")
+        ? "AUDIO"
+        : null;
 
-      // Create preview URL for images
-      if (file.type.startsWith("image")) {
+      if (!type) {
+        alert("Please select a valid audio or video file");
+        return;
+      }
+
+      // Create preview URL for videos only
+      if (file.type.startsWith("video") || file.type.startsWith("audio")) {
         const url = URL.createObjectURL(file);
-        setPreviewUrl(url);
+        setMediaPreviewUrl(url);
       } else {
-        setPreviewUrl(""); // Clear preview for videos
+        setMediaPreviewUrl(""); // Clear preview for audio files
       }
 
       setFormData((prev) => ({
@@ -167,8 +217,7 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
           ...prev.media,
           file: file,
           type: type,
-          // Clear existing posterUrl when new file is selected
-          posterUrl: "",
+          mediaUrl: "", // Clear existing mediaUrl when new file is selected
         },
       }));
     }
@@ -182,11 +231,14 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
         title: "",
         body: "",
         file: null,
+        thumbnailFile: null,
         posterUrl: "",
+        mediaUrl: "",
         type: "",
       },
     }));
     setPreviewUrl("");
+    setMediaPreviewUrl("");
 
     // If we're editing an existing task with media, set media to null to delete it
     if (taskData?.media) {
@@ -281,12 +333,17 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
           ? {
               ...taskData.media,
               file: null, // Don't include file from existing data
+              thumbnailFile: null, // Don't include thumbnailFile from existing data
+              mediaUrl:
+                taskData.media.audio?.url || taskData.media.video?.url || "", // Set mediaUrl from audio/video
             }
           : {
               title: "",
               body: "",
               file: null,
+              thumbnailFile: null,
               posterUrl: "",
+              mediaUrl: "",
               type: "",
             },
       });
@@ -305,11 +362,14 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
           title: "",
           body: "",
           file: null,
+          thumbnailFile: null,
           posterUrl: "",
+          mediaUrl: "",
           type: "",
         },
       });
       setPreviewUrl("");
+      setMediaPreviewUrl("");
     }
     setErrors({});
   }, [taskData]);
@@ -386,32 +446,9 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
         <div className="mt-4">
           <h3 className="text-sm font-medium text-gray-700 mb-1">Media</h3>
           <div className="p-4 border border-gray-200 rounded-md">
-            {/* Preview Image */}
-            {(previewUrl || formData.media?.posterUrl) && (
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Preview
-                </label>
-                <div className="relative inline-block">
-                  <img
-                    src={previewUrl || formData.media.posterUrl}
-                    alt="Preview"
-                    className="h-32 w-auto rounded border"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleRemoveMedia}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
-                  >
-                    ×
-                  </button>
-                </div>
-              </div>
-            )}
-
             <InputField
               label={"Title"}
-              placeholder={"Enter Title"}
+              placeholder={"Enter media title"}
               value={formData.media?.title || ""}
               onChange={(e) =>
                 handleNestedChange("media", "title", e.target.value)
@@ -420,7 +457,7 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
             <InputField
               className="mt-4"
               label={"Description"}
-              placeholder={"Enter Description"}
+              placeholder={"Enter media description"}
               value={formData.media?.body || ""}
               onChange={(e) =>
                 handleNestedChange("media", "body", e.target.value)
@@ -428,25 +465,201 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
               type="textarea"
               rows="3"
             />
+
+            {/* Thumbnail Upload */}
             <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Media File
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Thumbnail Image
               </label>
+
+              {/* Thumbnail Preview */}
+              {(previewUrl || formData.media?.posterUrl) && (
+                <div className="mb-3">
+                  <div className="relative inline-block">
+                    <img
+                      src={previewUrl || formData.media.posterUrl}
+                      alt="Thumbnail"
+                      className="h-32 w-auto rounded border"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPreviewUrl("");
+                        setFormData((prev) => ({
+                          ...prev,
+                          media: {
+                            ...prev.media,
+                            thumbnailFile: null,
+                            posterUrl: "",
+                          },
+                        }));
+                      }}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <input
                 type="file"
-                accept="image/*,video/*"
-                onChange={handleFileChange}
-                className="border p-2 rounded w-full"
+                accept="image/*"
+                onChange={handleThumbnailChange}
+                className="hidden"
+                id="thumbnailInput"
               />
-              {formData.media?.file && (
-                <p className="text-sm text-gray-600 mt-1">
-                  Selected file: {formData.media.file.name}
+              <label
+                htmlFor="thumbnailInput"
+                className="inline-block px-4 py-2 bg-blue-500 text-white rounded cursor-pointer hover:bg-blue-600"
+              >
+                {previewUrl || formData.media?.posterUrl
+                  ? "Change Thumbnail"
+                  : "Choose Thumbnail"}
+              </label>
+              {formData.media?.thumbnailFile && (
+                <p className="text-sm text-gray-600 mt-2">
+                  Selected: {formData.media.thumbnailFile.name}
                 </p>
               )}
-              <p className="text-xs text-gray-500 mt-1">
-                Supported types: Images and Videos
-              </p>
             </div>
+
+            {/* Media File Upload */}
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Media File (Audio/Video)
+              </label>
+
+              {/* Audio Player */}
+              {formData.media?.type === "AUDIO" &&
+                (mediaPreviewUrl || formData.media?.mediaUrl) && (
+                  <div className="mb-3">
+                    <audio
+                      controls
+                      className="w-full"
+                      key={mediaPreviewUrl || formData.media.mediaUrl}
+                    >
+                      <source
+                        src={mediaPreviewUrl || formData.media.mediaUrl}
+                      />
+                      Your browser does not support the audio element.
+                    </audio>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMediaPreviewUrl("");
+                        // Check if there's a thumbnail, if not set media to null
+                        if (
+                          !formData.media?.posterUrl &&
+                          !formData.media?.thumbnailFile
+                        ) {
+                          setFormData((prev) => ({
+                            ...prev,
+                            media: null,
+                          }));
+                        } else {
+                          // Keep thumbnail, just remove audio
+                          setFormData((prev) => ({
+                            ...prev,
+                            media: {
+                              ...prev.media,
+                              file: null,
+                              mediaUrl: "",
+                              type: "",
+                            },
+                          }));
+                        }
+                      }}
+                      className="mt-2 text-sm text-red-500 hover:text-red-700"
+                    >
+                      Remove Audio
+                    </button>
+                  </div>
+                )}
+
+              {/* Video Player */}
+              {formData.media?.type === "VIDEO" &&
+                (mediaPreviewUrl || formData.media?.mediaUrl) && (
+                  <div className="mb-3">
+                    <div className="relative inline-block">
+                      <video
+                        src={mediaPreviewUrl || formData.media.mediaUrl}
+                        controls
+                        className="h-48 w-auto rounded border"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMediaPreviewUrl("");
+                          // Check if there's a thumbnail, if not set media to null
+                          if (
+                            !formData.media?.posterUrl &&
+                            !formData.media?.thumbnailFile
+                          ) {
+                            setFormData((prev) => ({
+                              ...prev,
+                              media: null,
+                            }));
+                          } else {
+                            // Keep thumbnail, just remove video
+                            setFormData((prev) => ({
+                              ...prev,
+                              media: {
+                                ...prev.media,
+                                file: null,
+                                mediaUrl: "",
+                                type: "",
+                              },
+                            }));
+                          }
+                        }}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+              <input
+                type="file"
+                accept="audio/*,video/*"
+                onChange={handleFileChange}
+                className="hidden"
+                id="mediaFileInput"
+              />
+              <label
+                htmlFor="mediaFileInput"
+                className="inline-block px-4 py-2 bg-blue-500 text-white rounded cursor-pointer hover:bg-blue-600"
+              >
+                {formData.media?.file || formData.media?.mediaUrl
+                  ? "Change Media File"
+                  : "Choose Media File"}
+              </label>
+              {formData.media?.file && (
+                <p className="text-sm text-gray-600 mt-2">
+                  Selected: {formData.media.file.name}
+                </p>
+              )}
+            </div>
+
+            {/* Remove Media Button */}
+            {(previewUrl ||
+              mediaPreviewUrl ||
+              formData.media?.file ||
+              formData.media?.thumbnailFile ||
+              formData.media?.posterUrl ||
+              formData.media?.mediaUrl) && (
+              <div className="mt-4">
+                <button
+                  type="button"
+                  onClick={handleRemoveMedia}
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                >
+                  Remove All Media
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

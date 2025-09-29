@@ -29,26 +29,37 @@ export const upsertTask = createAsyncThunk(
         challengeId,
         order: order ? parseInt(order) : 0,
         xp: xp ? parseInt(xp) : 0,
-        media: {
-          title: media?.title || "",
-          body: media?.body || "",
-          posterUrl: media?.posterUrl || "",
-          type: media?.type || undefined,
-        },
+        media: media
+          ? {
+              title: media?.title || "",
+              body: media?.body || "",
+              posterUrl: media?.posterUrl || "",
+              mediaUrl: media?.mediaUrl || "",
+              type: media?.type || undefined,
+            }
+          : null,
       };
-      // Handle file upload if a file is present
+
+      // Handle thumbnail file upload
+      if (media?.thumbnailFile) {
+        const thumbnailName = `task/thumbnail/${Date.now()}-${
+          media.thumbnailFile.name
+        }`;
+        const thumbnailRef = ref(storage, thumbnailName);
+        await uploadBytes(thumbnailRef, media.thumbnailFile);
+        payload.media.posterUrl = thumbnailName;
+      }
+
+      // Handle media file upload (audio/video)
       if (media?.file) {
         const folder = media.file.type.startsWith("video")
           ? "task/video"
-          : "task/image";
-        const name = `${folder}/${Date.now()}-${media.file.name}`;
-        const fileRef = ref(storage, name);
+          : "task/audio";
+        const mediaName = `${folder}/${Date.now()}-${media.file.name}`;
+        const mediaRef = ref(storage, mediaName);
+        await uploadBytes(mediaRef, media.file);
 
-        // Upload the file
-        await uploadBytes(fileRef, media.file);
-
-        // Update payload with file URL
-        payload.media.posterUrl = name;
+        payload.media.mediaUrl = mediaName;
         payload.media.type = media.file.type.startsWith("video")
           ? "VIDEO"
           : "AUDIO";
