@@ -24,45 +24,46 @@ const FocusAreaUpsertForm = ({
   });
 
   const fontAwesomeIcons = [
-    "fa-bullseye",
-    "fa-dumbbell",
-    "fa-heart",
-    "fa-star",
-    "fa-trophy",
-    "fa-fire",
-    "fa-bolt",
-    "fa-leaf",
-    "fa-mountain",
-    "fa-bicycle",
-    "fa-running",
-    "fa-swimming-pool",
-    "fa-volleyball-ball",
-    "fa-basketball-ball",
-    "fa-football-ball",
-    "fa-table-tennis",
-    "fa-golf-ball",
-    "fa-hockey-puck",
-    "fa-skiing",
-    "fa-snowboarding",
-    "fa-hiking",
-    "fa-weight-hanging",
-    "fa-apple-alt",
-    "fa-carrot",
-    "fa-pizza-slice",
-    "fa-coffee",
-    "fa-graduation-cap",
-    "fa-book",
-    "fa-laptop",
-    "fa-mobile-alt",
-    "fa-camera",
-    "fa-music",
-    "fa-guitar",
-    "fa-palette",
-    "fa-briefcase",
-    "fa-home",
-    "fa-car",
-    "fa-plane",
+    "bullseye",
+    "dumbbell",
+    "heart",
+    "star",
+    "trophy",
+    "fire",
+    "bolt",
+    "leaf",
+    "mountain",
+    "bicycle",
+    "running",
+    "swimming-pool",
+    "volleyball-ball",
+    "basketball-ball",
+    "football-ball",
+    "table-tennis",
+    "golf-ball",
+    "hockey-puck",
+    "skiing",
+    "snowboarding",
+    "hiking",
+    "weight-hanging",
+    "apple-alt",
+    "carrot",
+    "pizza-slice",
+    "coffee",
+    "graduation-cap",
+    "book",
+    "laptop",
+    "mobile-alt",
+    "camera",
+    "music",
+    "guitar",
+    "palette",
+    "briefcase",
+    "home",
+    "car",
+    "plane",
   ];
+
   const [errors, setErrors] = useState({});
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showIconPicker, setShowIconPicker] = useState(false);
@@ -118,7 +119,7 @@ const FocusAreaUpsertForm = ({
       name: focusAreaData?.name || "",
       label: focusAreaData?.label || "",
       color: focusAreaData?.color || "#3b82f6",
-      icon: focusAreaData?.icon || "fa-bullseye",
+      icon: focusAreaData?.icon?.replace(/^fa-/, "") || "bullseye", // strip fa-
       programId: focusAreaData?.programId || "",
     });
     setErrors({});
@@ -200,7 +201,7 @@ const FocusAreaUpsertForm = ({
               onClick={() => setShowIconPicker(!showIconPicker)}
             >
               <i
-                className={`fas ${formData.icon} text-lg`}
+                className={`fas fa-${formData.icon} text-lg`}
                 style={{ color: formData.color }}
               ></i>
             </div>
@@ -227,7 +228,7 @@ const FocusAreaUpsertForm = ({
                     onClick={() => handleChange("icon", icon)}
                   >
                     <i
-                      className={`fas ${icon}`}
+                      className={`fas fa-${icon}`}
                       style={{ color: formData.color }}
                     ></i>
                   </div>

@@ -68,7 +68,7 @@ const Task = () => {
         takeaways: task.keyTakeaways?.length ?? 0,
       },
       color: "#06b6d4",
-      icon: "fa-list-check",
+      icon: "list-check",
       created: task.createdAt ?? new Date().toISOString(),
       originalData: task,
     })

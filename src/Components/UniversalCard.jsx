@@ -8,7 +8,7 @@ const UniversalCard = ({
   showActions = true,
 }) => {
   // Default values
-  const defaultIcon = "fa-layer-group";
+  const defaultIcon = "layer-group";
   const hasColor = item.color && item.color !== "";
   return (
     <div
@@ -20,7 +20,7 @@ const UniversalCard = ({
       <div className="flex items-start justify-between mb-4">
         <div className="w-12 h-12 rounded-lg flex items-center justify-center">
           <i
-            className={`fa-solid ${item.icon || defaultIcon}`}
+            className={`fa-solid fa-${item.icon || defaultIcon}`}
             style={{
               color: hasColor ? item.color : "#2563eb",
             }}

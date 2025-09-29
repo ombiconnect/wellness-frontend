@@ -79,7 +79,7 @@ const Program = () => {
       "Focus Area": program?._count?.focusAreas ?? 0,
     },
     color: "#2563eb",
-    icon: "fa-layer-group",
+    icon: "layer-group",
     created: program.createdAt ?? new Date().toISOString(),
   }));
 

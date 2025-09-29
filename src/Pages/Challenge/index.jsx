@@ -70,7 +70,7 @@ const Challenge = () => {
       duration: challenge.durationDays ? `${challenge.durationDays} days` : "0",
     },
     color: "#8b5cf6",
-    icon: "fa-trophy",
+    icon: "trophy",
     created: challenge.createdAt ?? new Date().toISOString(),
     originalData: challenge,
   }));
