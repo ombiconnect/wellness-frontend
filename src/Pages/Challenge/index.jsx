@@ -65,9 +65,8 @@ const Challenge = () => {
     subtitle: challenge.subtitle ?? "",
     difficultyLevel: challenge.difficultyLevel?.toLowerCase() ?? "",
     metrics: {
-      participants: challenge.participants ?? 0,
-      tasks: challenge.tasks ?? 0,
-      duration: challenge.durationDays ? `${challenge.durationDays} days` : "0",
+      tasks: challenge._count.tasks ?? 0,
+      participants: challenge._count.participants ?? 0,
     },
     color: "#8b5cf6",
     icon: "trophy",

@@ -23,9 +23,9 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="w-64 bg-white border-r border-gray-50 min-h-screen pt-6 pr-6 pb-2 pl-6 sticky top-0 flex flex-col ">
+    <div className="w-64 bg-white border-r border-gray-200 min-h-screen pt-6 pr-6 pb-2 pl-6 sticky top-0 flex flex-col ">
       <div
-        className="mb-10 flex items-center gap-1 border-b border-gray-200 cursor-pointer"
+        className="mb-10 flex items-center gap-1 cursor-pointer"
         onClick={() => handleNavigation("/")}
       >
         <img

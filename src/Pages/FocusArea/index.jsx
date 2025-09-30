@@ -66,9 +66,8 @@ const FocusArea = () => {
     color: fa.color ?? "#ccc",
     icon: fa.icon ?? "fa-bullseye",
     metrics: {
-      quadrants: fa.quadrants ?? 0,
-      habits: fa.habits ?? 0,
-      members: fa.members ?? 0,
+      habits: fa._count.habbits ?? 0,
+      challenges: fa._count.challenges ?? 0,
     },
     created: fa.createdAt ?? new Date().toISOString(),
     originalData: fa,

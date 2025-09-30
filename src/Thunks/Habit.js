@@ -54,7 +54,7 @@ export const getAllHabits = createAsyncThunk(
         ? `/habits?focusAreaId=${focusAreaId}`
         : `/habits`;
 
-      const response = await getAxios().get(url);
+      const response = await getAxios().get(`${url}?isAdmin=true`);
       return response.data;
     } catch (err) {
       return rejectWithValue(

@@ -65,7 +65,7 @@ const Habit = () => {
       color: habit.focusArea?.color ?? "#10b981",
       icon: habit.focusArea?.icon ?? "fa-repeat",
       metrics: {
-        participants: habit.participants ?? 0,
+        ["Record Point"]: habit.recordPoint ?? 0,
       },
       created: habit.createdAt ?? new Date().toISOString(),
       originalData: habit,

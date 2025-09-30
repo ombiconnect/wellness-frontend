@@ -6,36 +6,40 @@ const Header = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const { User } = useSelector((state) => state.auth);
-
   const pageTitles = {
     "/dashboard": {
       title: "Dashboard",
-      description: "Welcome to your dashboard",
+      description:
+        "Admin overview of programs, focus areas, challenges, habits, and tasks.",
     },
-    "/habit": {
-      title: "Habits Management",
-      description: "Manage your Habits",
-    },
-    "/member": {
-      title: "Member Management",
-      description: "Manage your Members",
+    "/program": {
+      title: "Programs",
+      description: "Create and manage programs that group related focus areas.",
     },
     "/focus-area": {
       title: "Focus Areas",
       description:
-        "Manage habits, challenges, and content across all quadrants",
-    },
-    "/program": {
-      title: "Programs",
-      description: "Create and manage community challenges",
+        "Define focus areas within programs to organize challenges and habits.",
     },
     "/challenge": {
       title: "Challenges",
-      description: "Create and manage challenges",
+      description:
+        "Create and manage challenges under focus areas to engage users.",
+    },
+    "/habit": {
+      title: "Habits Management",
+      description:
+        "Add and manage habits linked to focus areas and challenges.",
     },
     "/task": {
       title: "Tasks",
-      description: "Create and manage Tasks",
+      description:
+        "Manage tasks associated with challenges to structure content and progress.",
+    },
+    "/member": {
+      title: "Member Management",
+      description:
+        "Manage users, their progress, and assignments across programs and challenges.",
     },
   };
 

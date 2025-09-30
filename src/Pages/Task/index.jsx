@@ -65,7 +65,6 @@ const Task = () => {
       metrics: {
         order: task.order ?? 0,
         xp: task.xp ?? 0,
-        takeaways: task.keyTakeaways?.length ?? 0,
       },
       color: "#06b6d4",
       icon: "list-check",
