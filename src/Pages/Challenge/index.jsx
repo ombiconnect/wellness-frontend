@@ -68,8 +68,8 @@ const Challenge = () => {
       tasks: challenge._count.tasks ?? 0,
       participants: challenge._count.participants ?? 0,
     },
-    color: "#8b5cf6",
-    icon: "trophy",
+    color: challenge.focusArea?.color ?? "#8b5cf6",
+    icon: challenge.focusArea?.icon ?? "trophy",
     created: challenge.createdAt ?? new Date().toISOString(),
     originalData: challenge,
   }));

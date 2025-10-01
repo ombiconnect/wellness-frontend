@@ -38,6 +38,7 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
   const [mediaPreviewUrl, setMediaPreviewUrl] = useState(""); // New: for media preview
   const [errors, setErrors] = useState({});
   const challenges = useSelector((state) => state.challenge);
+  const task = useSelector((state) => state.task);
 
   // Fetch preview URL when taskData changes
   useEffect(() => {
@@ -95,6 +96,14 @@ const TaskUpsertForm = ({ taskData, handleCancelClick, onSuccess }) => {
       setErrors((prev) => ({ ...prev, [fieldName]: "" }));
     }
   };
+  useEffect(() => {
+    if (task.error?.alreadyExist) {
+      setErrors((prev) => ({
+        ...prev,
+        order: task?.error?.alreadyExist,
+      }));
+    }
+  }, [task.error]);
 
   const handleNestedChange = (parentField, fieldName, value, index = null) => {
     setFormData((prev) => {

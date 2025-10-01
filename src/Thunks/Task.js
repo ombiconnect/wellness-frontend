@@ -74,7 +74,10 @@ export const upsertTask = createAsyncThunk(
       return response.data;
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.message || err.message || "Failed to upsert task"
+        err.response?.data?.alreadayExist ||
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to upsert task"
       );
     }
   }

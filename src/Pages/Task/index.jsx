@@ -66,8 +66,8 @@ const Task = () => {
         order: task.order ?? 0,
         xp: task.xp ?? 0,
       },
-      color: "#06b6d4",
-      icon: "list-check",
+      color: task.challenge?.focusArea?.color ?? "#06b6d4",
+      icon: task.challenge?.focusArea?.icon ?? "list-check",
       created: task.createdAt ?? new Date().toISOString(),
       originalData: task,
     })
