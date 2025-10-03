@@ -28,8 +28,7 @@ const Header = () => {
     },
     "/habit": {
       title: "Habits Management",
-      description:
-        "Add and manage habits linked to focus areas and challenges.",
+      description: "Add and manage habits linked to focus areas.",
     },
     "/task": {
       title: "Tasks",
